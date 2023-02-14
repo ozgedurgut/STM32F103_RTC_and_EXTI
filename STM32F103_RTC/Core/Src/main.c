@@ -31,13 +31,15 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
-char time[30];
-char date[30];
+char time[8];
+char firstTime[8];
+char date[8];
 
 bool button0=0;
 bool button1=0;
 bool button2=0;
 bool button3=0;
+bool timeOK=0;
 
 uint32_t Counter=0;
 
@@ -45,6 +47,9 @@ volatile uint32_t start_time1 = 0;
 volatile uint32_t end_time = 0;
 uint8_t pin_state = 0;
 
+
+uint32_t firstTimeInSeconds;
+uint32_t currentTimeInSeconds;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -68,7 +73,8 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_RTC_Init(void);
 /* USER CODE BEGIN PFP */
-
+RTC_TimeTypeDef sTime;
+RTC_DateTypeDef DateToUpdate;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -90,6 +96,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		button1=1;
 		button2=0;
 		button3=0;
+		HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+		sprintf(firstTime,"%02d.%02d.%02d",sTime.Hours,sTime.Minutes,sTime.Seconds);
+		firstTimeInSeconds = sTime.Seconds + sTime.Minutes * 60 + sTime.Hours * 60 * 60;
 		break;
 
 	case GPIO_PIN_2 :
@@ -125,8 +134,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	}
 }
 
-RTC_TimeTypeDef sTime;
-RTC_DateTypeDef DateToUpdate;
+
 
 /* USER CODE END 0 */
 
@@ -175,8 +183,8 @@ int main(void)
 
 		HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 		HAL_RTC_GetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BIN);
-		sprintf(date,"Date: %02d.%02d.%02d\t",DateToUpdate.Date,DateToUpdate.Month,DateToUpdate.Year);
-		sprintf(time,"Time: %02d.%02d.%02d\r\n",sTime.Hours,sTime.Minutes,sTime.Seconds);
+		sprintf(date,"%02d.%02d.%02d",DateToUpdate.Date,DateToUpdate.Month,DateToUpdate.Year);
+		sprintf(time,"%02d.%02d.%02d",sTime.Hours,sTime.Minutes,sTime.Seconds);
 
 		HAL_Delay(1000);
 
@@ -189,6 +197,42 @@ int main(void)
 				}
 			}
 		}
+
+
+
+
+		currentTimeInSeconds = sTime.Seconds + sTime.Minutes * 60 + sTime.Hours * 60 * 60;
+		// Eğer 5 dakika geçtiyse, GPIO pinlerini sıfırla
+		if ((currentTimeInSeconds - firstTimeInSeconds) >= 300) {
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_10|GPIO_PIN_11, GPIO_PIN_RESET);
+			timeOK=1;
+			break;
+		}
+	    else {
+	    	timeOK=0;
+	        HAL_Delay(1000);
+	    }
+
+
+
+		/*
+	int diff_hours = sTime.Hours - firstTime[0];
+    int diff_minutes = sTime.Minutes - firstTime[1];
+    int diff_seconds = sTime.Seconds - firstTime[2];
+    int total_seconds = diff_hours * 3600 + diff_minutes * 60 + diff_seconds;
+
+    // 5 dakika geçip geçmediği kontrol ediliyor
+    if (total_seconds >= 300)
+    {
+      printf("5 dakika gecti!\n");
+      // Burada yapılacak işlemler yer alabilir
+      break;
+    }
+    */
+
+
+
+
 	}
   /* USER CODE END 3 */
 }
@@ -335,6 +379,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 
 }
 
