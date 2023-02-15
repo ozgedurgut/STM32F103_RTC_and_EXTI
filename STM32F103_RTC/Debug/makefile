@@ -34,34 +34,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := STM32F103_RTC
+BUILD_ARTIFACT_NAME := Stm32f103_rtc_and_exti
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-STM32F103_RTC.elf \
+Stm32f103_rtc_and_exti.elf \
 
 MAP_FILES += \
-STM32F103_RTC.map \
+Stm32f103_rtc_and_exti.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-STM32F103_RTC.list \
+Stm32f103_rtc_and_exti.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: STM32F103_RTC.elf secondary-outputs
+main-build: Stm32f103_rtc_and_exti.elf secondary-outputs
 
 # Tool invocations
-STM32F103_RTC.elf STM32F103_RTC.map: $(OBJS) $(USER_OBJS) C:\Users\KEOHDURGUT\Documents\GitHub\STM32F103_RTC_and_EXTI\STM32F103_RTC\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "STM32F103_RTC.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\KEOHDURGUT\Documents\GitHub\STM32F103_RTC_and_EXTI\STM32F103_RTC\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32F103_RTC.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Stm32f103_rtc_and_exti.elf Stm32f103_rtc_and_exti.map: $(OBJS) $(USER_OBJS) C:\Users\KEOHDURGUT\STM32CubeIDE\workspace_1.10.0\Stm32f103_rtc_and_exti\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Stm32f103_rtc_and_exti.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\KEOHDURGUT\STM32CubeIDE\workspace_1.10.0\Stm32f103_rtc_and_exti\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Stm32f103_rtc_and_exti.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -70,14 +70,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-STM32F103_RTC.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "STM32F103_RTC.list"
+Stm32f103_rtc_and_exti.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "Stm32f103_rtc_and_exti.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) STM32F103_RTC.elf STM32F103_RTC.list STM32F103_RTC.map default.size.stdout
+	-$(RM) Stm32f103_rtc_and_exti.elf Stm32f103_rtc_and_exti.list Stm32f103_rtc_and_exti.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

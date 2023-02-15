@@ -25,12 +25,10 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
 char time[9];
 char firstTime[9];
 char date[9];
@@ -41,19 +39,17 @@ bool button2=0;
 bool button3=0;
 bool timeOK=0;
 
+
 uint32_t Counter=0;
 
-volatile uint32_t start_time1 = 0;
-volatile uint32_t end_time = 0;
-uint8_t pin_state = 0;
+volatile uint32_t start_time1=0;
+volatile uint32_t end_time=0;
+uint8_t pin_state=0;
 
-uint32_t diff_hours;
-uint32_t diff_minutes;
-uint32_t diff_seconds;
-uint32_t total_seconds;
 
 uint32_t firstTimeInSeconds;
 uint32_t currentTimeInSeconds;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -83,49 +79,43 @@ RTC_DateTypeDef DateToUpdate;
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
 	switch(GPIO_Pin){
-	case GPIO_PIN_0 :
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+	case GPIO_PIN_0:
 		button0=1;
 		button1=0;
 		button2=0;
 		button3=0;
 		break;
-
-	case GPIO_PIN_1 :
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+	case GPIO_PIN_1:
 		button0=0;
 		button1=1;
 		button2=0;
 		button3=0;
 		break;
-
-	case GPIO_PIN_2 :
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
+	case GPIO_PIN_2:
+		HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+		sprintf(firstTime,"%02d.%02d.%02d",sTime.Hours,sTime.Minutes,sTime.Seconds);
+		firstTimeInSeconds = sTime.Seconds + sTime.Minutes * 60 + sTime.Hours * 60 *60;
 		button0=0;
 		button1=0;
 		button2=1;
 		button3=0;
 		break;
+	case GPIO_PIN_3:
 
-	case GPIO_PIN_3 :
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_RESET);
-
-		if (pin_state == 0)
-		{
-			start_time1 = HAL_GetTick();
-			pin_state = 1;
+		if(pin_state==0){
+			start_time1=HAL_GetTick();
+			pin_state=1;
 			button0=0;
 			button1=0;
 			button2=0;
 			button3=1;
 		}
-		else
-		{
-			end_time = HAL_GetTick();
-			pin_state = 0;
+		else{
+			end_time=HAL_GetTick();
+			pin_state=0;
 			button0=0;
 			button1=0;
 			button2=0;
@@ -134,9 +124,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		break;
 	}
 }
-
-
-
 /* USER CODE END 0 */
 
 /**
@@ -169,9 +156,7 @@ int main(void)
   MX_GPIO_Init();
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
-	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-	sprintf(firstTime,"%02d.%02d.%02d",sTime.Hours,sTime.Minutes,sTime.Seconds);
-	firstTimeInSeconds = sTime.Seconds + sTime.Minutes * 60 + sTime.Hours * 60 * 60;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -182,31 +167,22 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_10|GPIO_PIN_11, GPIO_PIN_SET);
-
 		HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 		HAL_RTC_GetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BIN);
-		sprintf(date,"%02d.%02d.%02d",DateToUpdate.Date,DateToUpdate.Month,DateToUpdate.Year);
 		sprintf(time,"%02d.%02d.%02d",sTime.Hours,sTime.Minutes,sTime.Seconds);
+		sprintf(date,"%02d.%02d.%02d",DateToUpdate.Date,DateToUpdate.Month,DateToUpdate.Year);
 
-		if(button3 == 1){
-			if (HAL_GetTick() - start_time1 >= 2000) {
-				Counter++;
-				start_time1 = HAL_GetTick();
-				if(Counter>=9999){
-					Counter=0;
-				}
-			}
-		}
+		currentTimeInSeconds = sTime.Seconds + sTime.Minutes*60+sTime.Hours *60 *60;
 
-		currentTimeInSeconds = sTime.Seconds + sTime.Minutes * 60 + sTime.Hours * 60 * 60;
-		// Eğer 2 dakika geçtiyse, GPIO pinlerini sıfırla
-		if ((currentTimeInSeconds - firstTimeInSeconds) >= 120) {
-			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_10|GPIO_PIN_11, GPIO_PIN_RESET);
+		if((currentTimeInSeconds-firstTimeInSeconds) >= 120){
 			timeOK=1;
+			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
+
 		}
-		else {
+		else{
 			timeOK=0;
+			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_SET);
+
 		}
 	}
   /* USER CODE END 3 */
@@ -294,8 +270,8 @@ static void MX_RTC_Init(void)
 
   /** Initialize RTC and set the Time and Date
   */
-  sTime.Hours = 9;
-  sTime.Minutes = 40;
+  sTime.Hours = 13;
+  sTime.Minutes = 50;
   sTime.Seconds = 0;
 
   if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
@@ -330,13 +306,9 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_10|GPIO_PIN_11, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9|GPIO_PIN_11|GPIO_PIN_12, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PA0 PA1 PA2 PA3 */
   GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
@@ -344,15 +316,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB0 PB1 PB10 PB11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_10|GPIO_PIN_11;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PA9 PA11 PA12 */
-  GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_11|GPIO_PIN_12;
+  /*Configure GPIO pins : PA8 PA9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
