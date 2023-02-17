@@ -1,12 +1,9 @@
 # STM32F103_RTC_and_EXTI
 In this project, External Interrupt and RTC application was made.
-In addition, time counting was done with Systick timer in the project.
 
-Pinout & Configuration and Clock Configuration are as in the images below.
 
-![RCC](RCC.png)
-![SYS](SYS.png)
-![GPIO](GPIO.png)
-![NVIC](NVIC.png)
-![RTC](RTC.png)
-![clockconf](clockconf.png)
+* You can access Pinout & Configuration and Clock Configuration from the video below.
+To access the video, click the image below.
+
+
+[<img src="https://imgyukle.com/f/2023/02/17/QyQ40p.png" width="50%">](https://www.youtube.com/watch?v=RVvKzsZiMTI&t=53s)
