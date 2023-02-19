@@ -145,22 +145,16 @@ int main(void)
 		currentTimeInSeconds = sTime.Seconds + sTime.Minutes * 60 + sTime.Hours * 60 * 60;
 
 		if(button2==1){
-			if(currentTimeInSeconds - firstTimeInSeconds >= 5){
-				firstTimeInSeconds = currentTimeInSeconds;
-				if(timeOK){
+			if (currentTimeInSeconds - firstTimeInSeconds < 5) {
+				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+				HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+			} else {
+				if ((currentTimeInSeconds - firstTimeInSeconds) >= 5 && (currentTimeInSeconds - firstTimeInSeconds) <= 10 ) {
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
-					timeOK=0;
+				} else {
+					firstTimeInSeconds = currentTimeInSeconds;
 				}
-				else {
-					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
-					HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
-					timeOK=1;
-				}
-			}
-
-			if(currentTimeInSeconds - firstTimeInSeconds >= 10){
-				firstTimeInSeconds = currentTimeInSeconds;
 			}
 		}
 	}
